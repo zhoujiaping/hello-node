@@ -2,3 +2,6 @@
 然后打开chrome-devtools（谷歌浏览器开发者版）
 在地址栏输入chrome://inspect（在nodejs的官网可以找到）
 接下来就可以打断点了。不过貌似只能给app.get的回调这样的函数打断点。
+
+npm install -g supervisor
+使得修改源码不用重启服务，服务器自动加载最新代码

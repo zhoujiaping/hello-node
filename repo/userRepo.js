@@ -1,22 +1,30 @@
 const pg = require('pg');
-const conString = 'postgres://postgres:123456@localhost/test';
+var pool = new pg.Pool({
+	  user: 'postgres',
+	  host: 'localhost',
+	  database: 'test',
+	  password: '123456',
+	  port: 5432,
+	})
+// pool.end()
+const text = 'select * from sys_user where id=$1';
 const repo = {
-	queryList: function(cb) {
-		pg.connect(conString, function(err, client, done) {
-			if(err) {
-				return console.error('err fetching client from pool', err);
-			}
-			client.query('SELECT * from sys_user', [], function(err, result) {
-				done();
-				if(err) {
-					return console.error('error running query', err);
-				}
-				cb(null,result.rows);
-				//console.info(result);
-			});
-
-		});
+	queryList: async function(cb) {
+		const values = [1];
+		const client = await pool.connect().catch(err=>{console.error(err);});
+		try{
+			await client.query('BEGIN');
+			const {rows} = await client.query(text,values);
+			await client.query('COMMIT');
+			cb(null,rows)
+		}catch(e){
+			await client.query('ROLLBACK');
+			throw e;
+		}finally{
+			client.release();
+		}
 	}
+
 
 };
 

@@ -1,0 +1,7 @@
+nodejs连接postgresql用户名密码等信息默认是从环境变量里取的。汗！
+在windows中，设置环境变量如下
+set PGUSER=postgres
+set PGHOST=localhost
+set PGPASSWORD=123456
+set PGDATABASE=test
+set PGPORT=5432
