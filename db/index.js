@@ -25,8 +25,26 @@ const db = {
 			client.release(); //没有关闭连接，只是将连接放回连接池
 		}
 	},
-	getClient:async function(callback){
-		pool.connect((err,client,done)=>{
+	getClient:async function(){
+		const client = await pool.connect();
+		const query = client.query.bind(client);
+		client.query=async (...args)=>{//这里用箭头函数会有bug，在用arguments时不要用箭头函数。或者用...args方式
+			client.lastQuery = args;
+			return query.apply(client,args);
+		};
+		const timeout = setTimeout(()=>{
+			console.error('A client has been checked out for more than 5 seconds.');
+			console.error(`The last executed query on this client was:${client.lastQuery}`);
+		},5000);
+		const release = client.release.bind(client);
+		client.release = ()=>{
+			release();
+			clearTimeout(timeout);
+			client.query = query;
+			client.release = release;
+		};
+		return client;
+		/*pool.connect((err,client,done)=>{
 			const query = client.query.bind(client);
 			client.query=async (...args)=>{//这里用箭头函数会有bug，在用arguments时不要用箭头函数。或者用...args方式
 				client.lastQuery = args;
@@ -42,7 +60,7 @@ const db = {
 				client.query = query;
 			};
 			callback(err,client,done);
-		});
+		});*/
 	}
 };
 module.exports = db;

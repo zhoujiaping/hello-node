@@ -17,11 +17,15 @@ router.get('/:id',async (req,res,next)=>{
 	});
 	res.send(result);*/
 	
-	db.getClient(async (err,client,done)=>{
+	/*db.getClient(async (err,client,done)=>{
 		const {rows} = await client.query('select * from sys_user where id=$1',[+req.params.id]);
 		client.release();
 		res.send(rows[0]);
-	});
+	});*/
+	const client = await db.getClient();
+	const {rows} = await client.query('select * from sys_user where id=$1',[+req.params.id]);
+	client.release();
+	res.send(rows[0]);
 });
 /*router.get('/',(req,res,next)=>{
 	
