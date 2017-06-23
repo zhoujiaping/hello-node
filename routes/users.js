@@ -11,11 +11,17 @@ var router = express.Router();
 });*/
 const db = require('../db');
 router.get('/:id',async (req,res,next)=>{
-	const result = await db.doInTransaction(async function(err,client){
+	/*const result = await db.doInTransaction(async function(err,client){
 		const {rows} = await client.query('select * from sys_user where id=$1',[req.params.id]);
 		return rows[0];
 	});
-	res.send(result);
+	res.send(result);*/
+	
+	db.getClient(async (err,client,done)=>{
+		const {rows} = await client.query('select * from sys_user where id=$1',[+req.params.id]);
+		client.release();
+		res.send(rows[0]);
+	});
 });
 /*router.get('/',(req,res,next)=>{
 	
