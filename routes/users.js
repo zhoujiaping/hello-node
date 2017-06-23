@@ -9,12 +9,22 @@ var router = express.Router();
 	})
   //res.send('respond with a resource');
 });*/
-const db = require('../db/index');
-router.get('/:id',(req,res,next)=>{
-	db.doInTransaction(async function(err,client){
+const db = require('../db');
+router.get('/:id',async (req,res,next)=>{
+	const result = await db.doInTransaction(async function(err,client){
 		const {rows} = await client.query('select * from sys_user where id=$1',[req.params.id]);
-		res.send(rows[0]);
+		return rows[0];
 	});
+	res.send(result);
 });
+/*router.get('/',(req,res,next)=>{
+	
+});
+router.post('/',(req,res,next)=>{
+	db.doInTransaction();
+});
+router.delete();
+router.patch();
+router.put();*/
 
 module.exports = router;

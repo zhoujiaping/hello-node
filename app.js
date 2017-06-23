@@ -2,12 +2,14 @@ var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
+const session = require('express-session');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+
 var index = require('./routes/index');
 var users = require('./routes/users');
-
+const login = require('./routes/login');
 var app = express();
 
 // view engine setup
@@ -20,9 +22,27 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session({
+	secret:'12345',
+	cookie:{maxAge:60000},
+	resave:false,
+	saveUninitialized:true
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/',function(req,res,next){
+	if(req.path == '/login'){
+		return next();
+	}
+	if(req.session.user){
+		next();
+	}else{
+		res.redirect('/login.html');
+	}
+});
+
 app.use('/', index);
+app.use('/login',login);
 app.use('/users', users);
 
 // catch 404 and forward to error handler
