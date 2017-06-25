@@ -28,3 +28,21 @@ co(function *(){
     }
 });
 这里暂时不考虑异常处理
+
+如果是连续的await
+await dosth1();
+await dosth2();
+相当于
+dosth1().then(res1=>{
+	dosth2().then(res2=>{
+		...
+	});
+});
+在需要使用
+promise.all(pro1,pro2,(res1,res2)=>{
+	..
+});
+时，就需要用
+async ()=>{
+	await promise.all(pro1,pro2);
+}

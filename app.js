@@ -9,7 +9,10 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-const login = require('./routes/login');
+const menus = require('./routes/menus');
+const roles = require('./routes/roles');
+const privileges = require('./routes/privileges');
+const priFilter = require('./filters/pri-filter');
 var app = express();
 
 // view engine setup
@@ -24,15 +27,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
 	secret:'12345',
-	cookie:{maxAge:60000},
+	cookie:{maxAge:30*60*1000},
 	resave:false,
 	saveUninitialized:true
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+//登录过滤器
 app.use('/',function(req,res,next){
-	return next();
-	if(req.path == '/login'){
+	if(req.originalUrl == '/login'){
 		return next();
 	}
 	if(req.session.user){
@@ -41,10 +44,14 @@ app.use('/',function(req,res,next){
 		res.redirect('/login.html');
 	}
 });
+//权限过滤器
+app.use('/*',priFilter);
 
 app.use('/', index);
-app.use('/login',login);
 app.use('/users', users);
+app.use('/menus',menus);
+app.use('/roles',roles);
+app.use('/pris',privileges);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
